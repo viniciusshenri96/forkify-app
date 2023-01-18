@@ -31,6 +31,11 @@ class RecipeView {
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
+  // Estamos realizando aqui o Publisher-Subscriber Pattern => Este metodo, é que o editor basicamente precisa ter acesso ao assinante, e nessa caso, é a função de manipulador. É uma API publica para que podemos chamar no controller.js
+  addHandlerRender(handler) {
+    ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
+  }
+
   #generateMarkup() {
     return `
         <figure class="recipe__fig">

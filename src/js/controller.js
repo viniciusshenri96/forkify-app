@@ -28,3 +28,8 @@ const controlRecipes = async function (e) {
     alert(err);
   }
 };
+
+const init = function () {
+  recipeView.addHandlerRender(controlRecipes);
+};
+init();
