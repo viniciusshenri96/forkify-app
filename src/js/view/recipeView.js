@@ -1,7 +1,7 @@
 // import icons from '../img/icons.svg'; // assim que funciona a importação no parcel 1;
 import icons from 'url:../../img/icons.svg'; // assim que funciona a importação no parcel 2 para quaisquer imagem, video ou arquivo de som, precisamos escrever URL
 import { Fraction } from 'fractional';
-console.log(Fraction);
+
 class RecipeView {
   #parentElement = document.querySelector('.recipe');
   #data;
@@ -10,7 +10,6 @@ class RecipeView {
   render(data) {
     this.#data = data;
     const markup = this.#generateMarkup();
-
     this.#clear;
     this.#parentElement.insertAdjacentHTML('afterbegin', markup);
   }
@@ -33,7 +32,6 @@ class RecipeView {
   }
 
   #generateMarkup() {
-    console.log(this.#data.title);
     return `
         <figure class="recipe__fig">
           <img src="${this.#data.image}" alt="${
