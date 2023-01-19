@@ -1,11 +1,18 @@
+import { async } from 'regenerator-runtime';
 import { API_URL } from './config.js';
 import { getJSON } from './helpers.js';
 
+// o state contém todos os dados de que precisamos para construir nosso aplicativo
 export const state = {
   recipe: {},
+  search: {
+    query: '',
+    results: '',
+  },
 };
 
 // Esta função não vai retornar nada, tudo que ela fará é mudar nosso objeto de estado
+// tudo que está função faz é manipular o state, não retorna nada
 export const loadRecipe = async function (id) {
   try {
     const data = await getJSON(`${API_URL}/${id}`);
@@ -22,6 +29,30 @@ export const loadRecipe = async function (id) {
       ingredients: recipe.ingredients,
     };
   } catch (err) {
+    console.error(`${err} 💥💥💥💥💥`);
+    // Está lançando o erro novamente, para poder usá-lo no controller.js
+    throw err;
+  }
+};
+
+// tudo que está função faz é manipular o state, não retorna nada
+export const loadSearchResults = async function (query) {
+  try {
+    state.search.query = query;
+    const data = await getJSON(`${API_URL}?search=${query}`);
+    console.log(data);
+
+    state.search.results = data.data.recipes.map(rec => {
+      return {
+        id: rec.id,
+        title: rec.title,
+        publisher: rec.publisher,
+        image: rec.image_url,
+      };
+    });
+  } catch (err) {
+    console.error(`${err} 💥💥💥💥💥`);
+    // Está lançando o erro novamente, para poder usá-lo no controller.js
     throw err;
   }
 };

@@ -24,6 +24,7 @@ export const getJSON = async function (url) {
     return data;
   } catch (err) {
     // Estamos pegando o objeto err e simplesmente lançar de novo o erro.
+    // Está lançando o erro novamente, para poder usá-lo no controller.js
     throw err;
   }
 };
