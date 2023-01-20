@@ -1,5 +1,5 @@
 import { async } from 'regenerator-runtime';
-import { API_URL } from './config.js';
+import { API_URL, RES_PERPAGE } from './config.js';
 import { getJSON } from './helpers.js';
 
 // o state contém todos os dados de que precisamos para construir nosso aplicativo
@@ -7,7 +7,9 @@ export const state = {
   recipe: {},
   search: {
     query: '',
-    results: '',
+    results: [],
+    page: 1,
+    resultsPerPage: RES_PERPAGE,
   },
 };
 
@@ -15,7 +17,7 @@ export const state = {
 // tudo que está função faz é manipular o state, não retorna nada
 export const loadRecipe = async function (id) {
   try {
-    const data = await getJSON(`${API_URL}/${id}`);
+    const data = await getJSON(`${API_URL}${id}`);
     const { recipe } = data.data;
 
     state.recipe = {
@@ -40,7 +42,6 @@ export const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
     const data = await getJSON(`${API_URL}?search=${query}`);
-    console.log(data);
 
     state.search.results = data.data.recipes.map(rec => {
       return {
@@ -55,4 +56,12 @@ export const loadSearchResults = async function (query) {
     // Está lançando o erro novamente, para poder usá-lo no controller.js
     throw err;
   }
+};
+
+export const getSearchResultsPage = function (page = state.search.page) {
+  state.search.page = page;
+  const start = (page - 1) * state.search.resultsPerPage;
+  const end = page * state.search.resultsPerPage;
+
+  return state.search.results.slice(start, end);
 };
