@@ -15,6 +15,38 @@ export default class View {
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
+  update(data) {
+    this._data = data;
+    const newMarkup = this._generateMarkup();
+
+    // convertera o newMarkup em um objeto real DOM Node objects, é um DOM que está na memoria e podemos utilizá-lo, como se fosse um DOM real em nossa página
+    const newDOM = document.createRange().createContextualFragment(newMarkup);
+    const newElements = Array.from(newDOM.querySelectorAll('*'));
+    const curElements = Array.from(this._parentElement.querySelectorAll('*'));
+    console.log(newElements);
+    console.log(curElements);
+
+    newElements.forEach((newEl, i) => {
+      const curEl = curElements[i];
+      // Comparando os nodes para ver se são iguais
+      console.log(curEl, newEl.isEqualNode(curEl));
+      if (
+        !newEl.isEqualNode(curEl) &&
+        newEl.firstChild?.nodeValue.trim() !== ''
+      ) {
+        console.log('💥', newEl.firstChild.nodeValue.trim());
+        curEl.textContent = newEl.textContent;
+      }
+
+      if (!newEl.isEqualNode(curEl)) {
+        // Substituindo o valor do atributo do elemento atual pelo novo
+        Array.from(newEl.attributes).forEach(attr => {
+          curEl.setAttribute(attr.name, attr.value);
+        });
+      }
+    });
+  }
+
   _clear() {
     this._parentElement.innerHTML = '';
   }

@@ -555,6 +555,8 @@ const controlRecipes = async function() {
         const id = window.location.hash.slice(1);
         // Clausula de guarda
         if (!id) return;
+        // 0) Update  result view to mark selected search result
+        (0, _resultsViewJsDefault.default).update(_modelJs.getSearchResultsPage());
         (0, _recipeViewJsDefault.default).renderSpinner();
         // 1) Loading recipe
         await _modelJs.loadRecipe(id);
@@ -592,7 +594,9 @@ const controlServings = function(updateTo) {
     _modelJs.updateServings(updateTo);
     // Delegando essa tarefa ao model.js
     // Update the recipe view
-    (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
+    // recipeView.render(model.state.recipe);
+    // Vai atualizar apenas os textos e atributos do DOM, sem ter que renderizar toda a visualização
+    (0, _recipeViewJsDefault.default).update(_modelJs.state.recipe);
 };
 const init = function() {
     (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes);
@@ -1755,6 +1759,29 @@ class View {
         const markup = this._generateMarkup();
         this._clear();
         this._parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
+    update(data) {
+        this._data = data;
+        const newMarkup = this._generateMarkup();
+        // convertera o newMarkup em um objeto real DOM Node objects, é um DOM que está na memoria e podemos utilizá-lo, como se fosse um DOM real em nossa página
+        const newDOM = document.createRange().createContextualFragment(newMarkup);
+        const newElements = Array.from(newDOM.querySelectorAll("*"));
+        const curElements = Array.from(this._parentElement.querySelectorAll("*"));
+        console.log(newElements);
+        console.log(curElements);
+        newElements.forEach((newEl, i)=>{
+            const curEl = curElements[i];
+            // Comparando os nodes para ver se são iguais
+            console.log(curEl, newEl.isEqualNode(curEl));
+            if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== "") {
+                console.log("\uD83D\uDCA5", newEl.firstChild.nodeValue.trim());
+                curEl.textContent = newEl.textContent;
+            }
+            if (!newEl.isEqualNode(curEl)) // Substituindo o valor do atributo do elemento atual pelo novo
+            Array.from(newEl.attributes).forEach((attr)=>{
+                curEl.setAttribute(attr.name, attr.value);
+            });
+        });
     }
     _clear() {
         this._parentElement.innerHTML = "";
@@ -3045,9 +3072,10 @@ class ResultsView extends (0, _viewJsDefault.default) {
         return this._data.map(this._generateMarkupPreview).join("");
     }
     _generateMarkupPreview(result) {
+        const id = window.location.hash.slice(1);
         return `
     <li class="preview">
-    <a class="preview__link" href="#${result.id}">
+    <a class="preview__link ${result.id === id ? "preview__link--active" : ""}" href="#${result.id}">
       <figure class="preview__fig">
         <img src="${result.image}" alt="${result.title}" />
       </figure>
