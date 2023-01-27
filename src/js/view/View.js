@@ -4,13 +4,25 @@ import icons from 'url:../../img/icons.svg'; // assim que funciona a importaçã
 export default class View {
   _data;
   // API publica
-  render(data) {
+
+  /**
+   * Render the received object to the DOM
+   * @param {Object | Object[]} data The data to be rendered (e.g. recipe)
+   * @param {boolean} [render = true] If false, create markup string instead of rendering to the DOM
+   * @returns {undefined | string} A markup string is returned if render=false
+   * @this { Object } View instance
+   * @author Vinicius Henrique
+   * @todo Finish implementation
+   */
+  render(data, render = true) {
     if (!data || (Array.isArray(data) && data.length === 0)) {
       return this.renderError();
     }
 
     this._data = data;
     const markup = this._generateMarkup();
+    if (!render) return markup;
+
     this._clear();
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
   }
@@ -23,18 +35,14 @@ export default class View {
     const newDOM = document.createRange().createContextualFragment(newMarkup);
     const newElements = Array.from(newDOM.querySelectorAll('*'));
     const curElements = Array.from(this._parentElement.querySelectorAll('*'));
-    console.log(newElements);
-    console.log(curElements);
 
     newElements.forEach((newEl, i) => {
       const curEl = curElements[i];
       // Comparando os nodes para ver se são iguais
-      console.log(curEl, newEl.isEqualNode(curEl));
       if (
         !newEl.isEqualNode(curEl) &&
         newEl.firstChild?.nodeValue.trim() !== ''
       ) {
-        console.log('💥', newEl.firstChild.nodeValue.trim());
         curEl.textContent = newEl.textContent;
       }
 
